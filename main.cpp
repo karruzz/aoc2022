@@ -19,7 +19,6 @@ constexpr void registerTasks<0>() { }
 int main(int argc, char* argv[])
 {
 	registerTasks<DAYS>();
-	//tasks[DAYS] = std::unique_ptr<ITask>(new Task<DAYS>());
 
 	int day =           (argc > 1) ? convert<int>(argv[1]) : DAYS;
 	std::string input = (argc > 2) ? argv[2] : getFilename(day);

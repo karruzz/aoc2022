@@ -93,12 +93,6 @@ private:
 			}
 		}
 
-		print(score, 1, ' ');
-		log("");
-
-		print(visib);
-		log("");
-
 		for (const auto& vec : visib)
 			visibleCount = std::accumulate(vec.cbegin(), vec.cend(), visibleCount);
 
