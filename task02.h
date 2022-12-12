@@ -21,7 +21,7 @@ public:
 		while(std::getline(data, game))
 		{
 			cropp(game);
-			VC round = split<char>(game, ' ');
+			VC round = { game[0], game[2] };
 
 			if (p == Part::One)
 			{

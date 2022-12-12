@@ -1,6 +1,6 @@
 #include "tools.h"
 
-#define DAYS 9
+#define DAYS 11
 #include taskfile(DAYS)
 
 std::vector<std::unique_ptr<ITask>> tasks(DAYS + 1);
@@ -24,16 +24,16 @@ int main(int argc, char* argv[])
 	std::string input = (argc > 2) ? argv[2] : getFilename(day);
 
 	log("Day ", day);
-	for (const auto p : { Part::One, Part::Two })
+	for (const auto part : { Part::One, Part::Two })
 	{
-		if (!tasks[day]->test(p))
+		if (!tasks[day]->test(part))
 		{
-			log((int)p, ": Test failed");
+			log((int)part, ": Test failed");
 			break;
 		}
 
 		std::fstream data(input);
-		log((int)p, ": Test passed, answer: ", tasks[day]->solve(data, p));
+		log((int)part, ": Test passed, answer:\n", tasks[day]->solve(data, part));
 	}
 
 	return 0;

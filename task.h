@@ -15,17 +15,17 @@ class ITask
 public:
 	virtual ~ITask() {}
 
-	virtual std::string solve(std::istream& data, Part p) = 0;
+	virtual std::string solve(std::istream& data, Part part) = 0;
 
-	bool test(Part p)
+	bool test(Part part)
 	{
-		std::stringstream ss(testData(p));
-		return m_testAnswers.find(p) != m_testAnswers.end()
-		    && solve(ss, p) == m_testAnswers.at(p);
+		std::stringstream ss(testData(part));
+		return m_testAnswers.find(part) != m_testAnswers.end()
+		    && solve(ss, part) == m_testAnswers.at(part);
 	}
 
 protected:
-	virtual std::string testData(Part p = Part::One) = 0;
+	virtual std::string testData(Part part = Part::One) = 0;
 	std::map<Part, std::string> m_testAnswers;
 };
 

@@ -23,7 +23,7 @@ public:
 			move(m);
 
 		int64_t count = 0;
-		for (const auto& vec : m_tailVisited)
+		for (const auto& vec : m_visitedByTail)
 			count = std::accumulate(vec.cbegin(), vec.cend(), count);
 
 		return std::to_string(count);
@@ -66,7 +66,7 @@ private:
 
 	const PointXY m_start = { .x = MAP_SIZE_X / 2, .y = MAP_SIZE_Y / 2 };
 
-	VVI m_tailVisited;
+	VVI m_visitedByTail;
 	std::vector<PointXY> m_knots;
 
 	void printKnots()
@@ -86,8 +86,8 @@ private:
 	void init(int knotsNumber)
 	{
 		m_knots = std::vector<PointXY>(knotsNumber, m_start);
-		m_tailVisited = VVI(MAP_SIZE_Y, VI(MAP_SIZE_X, 0));
-		updateMap();
+		m_visitedByTail = VVI(MAP_SIZE_Y, VI(MAP_SIZE_X, 0));
+		updateVisited();
 	}
 
 	void move(const Movement& m)
@@ -102,7 +102,7 @@ private:
 				if (!touched(m_knots[j], m_knots[j + 1]))
 				{
 					follow(m_knots[j], m_knots[j + 1]);
-					updateMap();
+					updateVisited();
 				}
 			}
 		}
@@ -145,10 +145,10 @@ private:
 		    && std::abs(p1.y - p2.y) <= 1;
 	}
 
-	void updateMap()
+	void updateVisited()
 	{
 		const auto& tail = m_knots.back();
-		m_tailVisited[tail.y][tail.x] = 1;
+		m_visitedByTail[tail.y][tail.x] = 1;
 	}
 
 	std::list<Movement> parse(std::istream& data)
