@@ -1,6 +1,6 @@
 #include "tools.h"
 
-#define DAYS 11
+#define DAYS 12
 #include taskfile(DAYS)
 
 std::vector<std::unique_ptr<ITask>> tasks(DAYS + 1);

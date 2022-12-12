@@ -65,6 +65,9 @@ struct PointXY
 {
 	int x = 0;
 	int y = 0;
+
+	bool operator==(const PointXY& p) const { return x == p.x && y == p.y; }
+	bool operator!=(const PointXY& p) const { return !(*this == p); }
 };
 
 /* helpful function */
@@ -107,12 +110,11 @@ char convert<char>(const std::string& token) { return token[0]; }
 template<template <typename> class Container, typename T>
 static void print(const std::vector<Container<T>>& twoDimensionalContainer, int width = 0, char delimeter = 0)
 {
-	if (width) std::cout << std::setw(width) << std::setfill('0');
-
 	for (const auto& dimensionOne : twoDimensionalContainer)
 	{
 		for (const auto& t : dimensionOne)
 		{
+			if (width) std::cout << std::setw(width) << std::setfill('0');
 			std::cout << t;
 			if (delimeter) std::cout << delimeter;
 		}
