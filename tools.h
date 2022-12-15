@@ -70,6 +70,13 @@ struct PointXY
 	bool operator!=(const PointXY& p) const { return !(*this == p); }
 };
 
+void swap(PointXY& p1, PointXY& p2)
+{
+	PointXY tmp = p1;
+	p1 = p2;
+	p2 = tmp;
+}
+
 /* helpful function */
 
 template<class... Args>
@@ -123,7 +130,7 @@ static void print(const std::vector<Container<T>>& twoDimensionalContainer, int 
 }
 
 template<typename T>
-std::list<T> split(const std::string& line, const std::string& delimeter)
+std::list<T> splitToList(const std::string& line, const std::string& delimeter)
 {
 	using S = std::string;
 	auto gettoken = [](const S& s, size_t& begin, S& token, const S& delimeter) -> bool
@@ -147,6 +154,18 @@ std::list<T> split(const std::string& line, const std::string& delimeter)
 		tokens.push_back(convert<T>(token));
 
 	return tokens;
+}
+
+template<typename T>
+std::vector<T> splitToVec(const std::string& line, const std::string& delimeter)
+{
+	std::list<T> tokens = splitToList<T>(line, delimeter);
+
+	std::vector<T> tokensVec;
+	for (const auto& token : tokens)
+		tokensVec.push_back(token);
+
+	return tokensVec;
 }
 
 #endif

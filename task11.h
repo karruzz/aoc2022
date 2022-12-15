@@ -29,8 +29,7 @@ public:
 		{
 			for (auto& monkey : monkeys)
 			{
-				LPI64 inspectResults = monkey.inspect();
-				for (const auto& inspectResult : inspectResults)
+				for (const auto& inspectResult : monkey.inspect())
 				{
 					int toMonkey = inspectResult.first;
 					int64_t item = inspectResult.second;
@@ -154,7 +153,7 @@ private:
 
 				case (Lines::Items) : {
 					std::string items = line.substr(18);
-					monkey.setItems(split<int64_t>(items, ", "));
+					monkey.setItems(splitToList<int64_t>(items, ", "));
 				} break;
 
 				case (Lines::Operation) : {
