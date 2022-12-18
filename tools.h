@@ -33,6 +33,7 @@
 
 using VC    = std::vector<char>;
 using VVC   = std::vector<VC>;
+using VVVC  = std::vector<VVC>;
 
 using LC    = std::list<char>;
 using VLC   = std::vector<LC>;
@@ -69,6 +70,29 @@ struct PointXY
 
 	bool operator==(const PointXY& p) const { return x == p.x && y == p.y; }
 	bool operator!=(const PointXY& p) const { return !(*this == p); }
+
+	bool operator<(const PointXY& p) const
+	{
+		if ( x != p.x ) return x < p.x;
+		return y < p.y;
+	}
+};
+
+struct PointXYZ
+{
+	int x = 0;
+	int y = 0;
+	int z = 0;
+
+	bool operator==(const PointXYZ& p) const { return x == p.x && y == p.y && z == p.z; }
+	bool operator!=(const PointXYZ& p) const { return !(*this == p); }
+
+	bool operator<(const PointXYZ& p) const
+	{
+		if ( x != p.x ) return x < p.x;
+		if ( y != p.y ) return y < p.y;
+		return z < p.z;
+	}
 };
 
 void swap(PointXY& p1, PointXY& p2)
@@ -116,7 +140,7 @@ template<>
 char convert<char>(const std::string& token) { return token[0]; }
 
 template<template <typename> class Container, typename T>
-static void print(const std::vector<Container<T>>& twoDimensionalContainer, int width = 0, char delimeter = 0)
+static void print(const Container<Container<T>>& twoDimensionalContainer, int width = 0, char delimeter = 0)
 {
 	for (const auto& dimensionOne : twoDimensionalContainer)
 	{
