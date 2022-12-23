@@ -59,6 +59,8 @@ using MSI   = std::map<std::string, int>;
 using MIS   = std::map<int, std::string>;
 using MISG  = std::map<int, std::string, std::greater<int>>;
 
+using MIIG  = std::map<int, int, std::greater<int>>;
+
 using MSS   = std::map<std::string, std::string>;
 using MSB   = std::map<std::string, bool>;
 using MCI   = std::map<char, int>;
