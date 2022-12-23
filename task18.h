@@ -52,7 +52,7 @@ public:
 
 				for (const auto& p : whereCouldGo)
 				{
-					if (p.x < 0  || p.y < 0  || p.z < 0 || p.x >= X || p.y >= Y || p.z >= Z)
+					if (p.x < 0 || p.y < 0 || p.z < 0 || p.x >= X || p.y >= Y || p.z >= Z)
 						continue;
 
 					if ( volumeAroundDrop[p.y][p.z][p.x] != '.')

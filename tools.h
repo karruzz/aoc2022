@@ -18,6 +18,8 @@
 #include <stack>
 #include <string>
 #include <tuple>
+#include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 /* helpful macros */
@@ -44,6 +46,7 @@ using LI64  = std::list<int64_t>;
 using VVI   = std::vector<VI>;
 
 using VS    = std::vector<std::string>;
+using LS    = std::list<std::string>;
 
 using PI    = std::pair<int, int>;
 using LPI   = std::list<PI>;
@@ -51,10 +54,13 @@ using LPI   = std::list<PI>;
 using PI64  = std::pair<int64_t, int64_t>;
 using LPI64 = std::list<PI64>;
 
-using VS    = std::vector<std::string>;
-
 using MSC   = std::map<std::string, char>;
 using MSI   = std::map<std::string, int>;
+using MIS   = std::map<int, std::string>;
+using MISG  = std::map<int, std::string, std::greater<int>>;
+
+using MSS   = std::map<std::string, std::string>;
+using MSB   = std::map<std::string, bool>;
 using MCI   = std::map<char, int>;
 
 struct Point
@@ -152,6 +158,18 @@ static void print(const Container<Container<T>>& twoDimensionalContainer, int wi
 		}
 		std::cout << std::endl;
 	}
+}
+
+template<template <typename> class Container, typename T>
+static void printOne(const Container<T>& oneDimensionalContainer, int width = 0, char delimeter = 0)
+{
+	for (const auto& t : oneDimensionalContainer)
+	{
+		if (width) std::cout << std::setw(width) << std::setfill('0');
+		std::cout << t;
+		if (delimeter) std::cout << delimeter;
+	}
+	std::cout << std::endl;
 }
 
 template<typename T>
