@@ -69,7 +69,8 @@ private:
 			int miniteOpened = valve.second;
 			released += valves.at(valveIndex).m_rate * miniteOpened;
 
-			log(valves.at(valveIndex).m_name,"-", valves.at(valveIndex).m_rate, ": ", totalMinutes - miniteOpened, ", ", miniteOpened, ", released - ", released);
+			if (showLog)
+				log(valves.at(valveIndex).m_name,"-", valves.at(valveIndex).m_rate, ": ", totalMinutes - miniteOpened, ", ", miniteOpened, ", released - ", released);
 		}
 		return released;
 	}
@@ -127,11 +128,12 @@ private:
 
 			if (current.m_toVisit.size() < leftValves)
 			{
-				auto elapsed = std::chrono::steady_clock::now();
 				leftValves = current.m_toVisit.size();
-
 				if (showLog)
+				{
+					auto elapsed = std::chrono::steady_clock::now();
 					std::cout << "Left " << leftValves << ", elapsed " << std::chrono::duration_cast<std::chrono::seconds>(elapsed - startTime).count() << std::endl;
+				}
 			}
 
 			if (current.m_released > maxReleased)

@@ -7,41 +7,84 @@ template<>
 class Task<17> : public ITask
 {
 public:
-	Task()
+	Task() : m_shapes(initShapes())
 	{
-		init();
-
 		m_testAnswers[Part::One] = "3068";
 		m_testAnswers[Part::Two] = "1514285714288";
 	}
 
 	std::string solve(std::istream& data, Part part) override
 	{
-		VVC chamber = VVC(5, { '|','.','.','.','.','.','.','.','|'});
+		std::deque<VC> chamber = std::deque<VC>(10, { '|','.','.','.','.','.','.','.','|'});
 		chamber[0] = { '#','-','-','-','-','-','-','-','#'};
 
 		int jetLinePosition = 0;
 		std::string jetLine = parse(data);
 
-		VI tops(1);
+		bool patternInited = false;
+		std::deque<VC> pattern(300);
 
-		int64_t rock = 0;
-		int64_t ROCKS_MAX = (part == Part::One) ? 2023 : 50000000;
+		const int64_t ROCKS_MAX = (part == Part::One) ? 2023 : 1000000000001;
+		int64_t rock = 0, linesPoped = 0;
+
+		int64_t patternBeginLine = 0, patternBeginRock = 0;
+		int64_t patternPeriodLines = 0, patternPeriodRocks = 0;
+		bool patternApplied = false;
 		while (rock < ROCKS_MAX)
 		{
 			for (Shape shape : m_shapes)
 			{
-				tops.resize(rock);
-				tops[rock] = findTop(chamber);
-				shape.m_position.x = 3, shape.m_position.y = tops[rock] + 4;
-
 				++rock;
 				if (rock >= ROCKS_MAX)
 					break;
 
+				static const int64_t PERIOD_STABILIZED = 1000;
+				if (!patternInited && linesPoped > PERIOD_STABILIZED)
+				{
+					std::copy(chamber.begin(), chamber.begin() + pattern.size(), pattern.begin());
+					patternInited = true;
+				}
+
+				while (chamber.size() > (3 * pattern.size()))
+				{
+					chamber.pop_front();
+					++linesPoped;
+
+					if (patternInited && !patternApplied)
+					{
+						if (std::equal(pattern.begin(), pattern.end(), chamber.begin()))
+						{
+							if (patternBeginLine == 0)
+							{
+								patternBeginLine = linesPoped;
+								patternBeginRock = rock;
+							}
+							else
+							{
+								if (patternPeriodRocks == 0)
+								{
+									patternPeriodLines = linesPoped - patternBeginLine;
+									patternPeriodRocks = rock - patternBeginRock;
+								}
+							}
+						}
+					}
+				}
+
+				if (patternPeriodRocks != 0 && !patternApplied)
+				{
+					patternApplied = true;
+					int64_t addPeriods = (ROCKS_MAX - rock - 10LL * patternPeriodRocks) / patternPeriodRocks;
+					linesPoped += patternPeriodLines * addPeriods;
+					rock += patternPeriodRocks * addPeriods;
+				}
+
+
+				shape.m_position.x = 3, shape.m_position.y = findTop(chamber) + 4;
+
 				int newHeight = shape.m_position.y + shape.height();
-				if (newHeight >= chamber.size())
-					chamber.resize(newHeight, { '|','.','.','.','.','.','.','.','|'});
+				while (newHeight > chamber.size())
+					chamber.push_back({ '|','.','.','.','.','.','.','.','|'});
 
 				while (true)
 				{
@@ -62,70 +105,10 @@ public:
 				}
 
 				addShape(chamber, shape);
-				// printChamber(chamber);
 			}
 		}
 
-		if (part == Part::One)
-		{
-			return std::to_string(findTop(chamber));
-		}
-		else
-		{
-			log("Finished ", chamber.size(), ", top size ", tops.size());
-			VC start = chamber[1];
-
-			for (int repeatPosition = 2; repeatPosition < chamber.size(); ++repeatPosition)
-			{
-				auto it = std::find(chamber.begin() + repeatPosition, chamber.end(), start);
-				int repetition = 0;
-				if (it != chamber.end())
-				{
-					repetition = std::distance(chamber.begin(), it);
-
-					bool same = true;
-					for (int i = 0; i < 100; ++i)
-					{
-						if (chamber[1 + i] != chamber[repetition + i])
-						{
-							if (i > 3)
-							{
-								log("** begin **");
-								for (int j = 0; j <= i; ++j)
-								{
-									std::string line(chamber[1 + j].begin(), chamber[1 + j].end());
-									log(line);
-								}
-
-								log("** repeat **: ", repetition);
-								for (int j = 0; j <= i; ++j)
-								{
-									std::string line(chamber[repetition + j].begin(), chamber[repetition + j].end());
-									log(line);
-								}
-								log();
-							}
-							same = false;
-							break;
-						}
-					}
-
-					if (same)
-					{
-						log("Repetition since ", repetition);
-						return "";
-					}
-
-					repeatPosition = repetition + 1;
-				}
-				else
-				{
-					break;
-				}
-			}
-			log("End ");
-			return "";
-		}
+		return std::to_string(findTop(chamber) + linesPoped);
 	}
 
 protected:
@@ -145,23 +128,17 @@ private:
 		int width()  const { return m_points[0].size(); }
 	};
 
-	const int ChamberWide = 7;
-	std::vector<Shape> m_shapes;
+	const std::vector<Shape> m_shapes;
 
 
-	void printChamber(const VVC& chamber)
+	void printChamber(const std::deque<VC>& chamber)
 	{
 		for (int i = chamber.size() - 1; i >= 0; --i)
-		{
-			for (char c : chamber[i])
-				std::cout << c;
-			std::cout << std::endl;
-		}
-		log("*********");
+			printOne(chamber[i]);
 	}
 
 
-	void addShape(VVC& chamber, const Shape& shape)
+	void addShape(std::deque<VC>& chamber, const Shape& shape)
 	{
 		for (int y = 0; y < shape.height(); ++y)
 			for (int x = 0; x < shape.width(); ++x)
@@ -170,7 +147,7 @@ private:
 	}
 
 
-	bool collides(const VVC& chamber, const Shape& shape)
+	bool collides(const std::deque<VC>& chamber, const Shape& shape)
 	{
 		for (int y = 0; y < shape.height(); ++y)
 			for (int x = 0; x < shape.width(); ++x)
@@ -186,17 +163,17 @@ private:
 	}
 
 
-	int64_t findTop(const VVC& chamber)
+	int64_t findTop(const std::deque<VC>& chamber)
 	{
 		for (int i = chamber.size() - 1; i >= 0; --i)
 			if (std::any_of(chamber[i].cbegin(), chamber[i].cend(), [](int c) { return c == '#'; }))
 				return i;
 
-		return -1;
+		assert(false);
 	}
 
 
-	void init()
+	std::vector<Shape> initShapes()
 	{
 		std::string figures =
 			"####\n"
@@ -219,15 +196,18 @@ private:
 
 		std::stringstream ss(figures);
 
-		m_shapes.push_back(Shape());
+		std::vector<Shape> shapes;
+		shapes.push_back(Shape());
 		std::string line;
 		while(std::getline(ss, line))
 		{
 			if (!line.empty())
-				m_shapes.back().m_points.push_back(VC(line.begin(), line.end()));
+				shapes.back().m_points.push_back(VC(line.begin(), line.end()));
 			else
-				m_shapes.push_back(Shape());
+				shapes.push_back(Shape());
 		}
+
+		return shapes;
 	}
 
 	std::string parse(std::istream& data)
