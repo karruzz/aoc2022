@@ -76,9 +76,9 @@ private:
 	{
 		struct Step
 		{
-			uint16_t m_robots[Mineral::Count];
-			uint16_t m_buildingRobots[Mineral::Count];
-			uint16_t m_minerals[Mineral::Count];
+			uint8_t m_robots[Mineral::Count];
+			uint8_t m_buildingRobots[Mineral::Count];
+			uint8_t m_minerals[Mineral::Count];
 			uint16_t m_minute;
 			uint16_t m_totalMinutes;
 
@@ -130,13 +130,13 @@ private:
 			.m_buildingRobots = { 0, 0, 0, 0 },
 			.m_minerals = { 0, 0, 0, 0 },
 			.m_minute = 0,
-			.m_totalMinutes = minutes
+			.m_totalMinutes = (uint16_t)minutes
 		};
 
 		// std::atomic<int> optimalScore = 0;
 
 		int optimalScore = 0;
-		int iterations = 0;
+		int64_t iterations = 0;
 
 		auto doStep = [&iterations, &optimalScore, &bp](Step start) -> std::list<Step>
 		{
