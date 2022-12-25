@@ -10,25 +10,29 @@ public:
 	Task()
 	{
 		m_testAnswers[Part::One] = "33";
+		m_testAnswers[Part::Two] = "3472";
 	}
 
 	std::string solve(std::istream& data, Part part) override
 	{
-		auto blueprints = parse(data);
-
-		int answer = 0;
-		std::vector<std::future<int>> results;
+		auto blueprints = parse(data, part);
 
 		auto startTime = std::chrono::steady_clock::now();
 
+		int minutes = (part == Part::One) ? 24 : 32;
+		std::vector<std::future<int>> results;
 		for (int i = 0; i < blueprints.size(); ++i)
-			results.push_back(std::async(calculate, blueprints[i], i + 1));
+			results.push_back(std::async(calculate, blueprints[i], minutes, i + 1));
 
+		int answer = (part == Part::One) ? 0 : 1;
 		for (int i = 0; i < results.size(); ++i)
 		{
 			int optimal = results[i].get();
 			log(i + 1, ", optimal ", optimal);
-			answer += (i + 1) * optimal;
+			if (part == Part::One)
+				answer += (i + 1) * optimal;
+			else
+				answer *= optimal;
 		}
 
 		auto now = std::chrono::steady_clock::now();
@@ -68,7 +72,7 @@ private:
 		VI m_robotCostsMax;
 	};
 
-	static int calculate(const Blueprint& bp, int blueprintNumber)
+	static int calculate(const Blueprint& bp, int minutes, int blueprintNumber)
 	{
 		struct Step
 		{
@@ -126,7 +130,7 @@ private:
 			.m_buildingRobots = { 0, 0, 0, 0 },
 			.m_minerals = { 0, 0, 0, 0 },
 			.m_minute = 0,
-			.m_totalMinutes = 24
+			.m_totalMinutes = minutes
 		};
 
 		// std::atomic<int> optimalScore = 0;
@@ -245,7 +249,7 @@ private:
 		return optimalScore;
 	}
 
-	std::vector<Blueprint> parse(std::istream& data)
+	std::vector<Blueprint> parse(std::istream& data, Part part)
 	{
 		std::vector<Blueprint> blueprints;
 
@@ -279,6 +283,9 @@ private:
 					 	bp.m_robotCostsMax[i] = cost.m_cost[i];
 
 			blueprints.push_back(bp);
+
+			if (part == Part::Two && blueprints.size() >= 3)
+				break;
 		}
 
 		return blueprints;
