@@ -3,20 +3,24 @@
 
 #include <algorithm>
 #include <array>
+#include <atomic>
 #include <cassert>
 #include <chrono>
 #include <cmath>
 #include <fstream>
+#include <future>
 #include <iomanip>
 #include <iostream>
 #include <list>
 #include <memory>
 #include <numeric>
+#include <optional>
 #include <queue>
 #include <regex>
 #include <set>
 #include <stack>
 #include <string>
+#include <thread>
 #include <tuple>
 #include <unordered_map>
 #include <unordered_set>
@@ -44,6 +48,7 @@ using VI    = std::vector<int>;
 using LI    = std::list<int>;
 using LI64  = std::list<int64_t>;
 using VVI   = std::vector<VI>;
+using LVI   = std::list<VI>;
 
 using VS    = std::vector<std::string>;
 using LS    = std::list<std::string>;
@@ -57,6 +62,8 @@ using LPI64 = std::list<PI64>;
 using MSC   = std::map<std::string, char>;
 using MSI   = std::map<std::string, int>;
 using MIS   = std::map<int, std::string>;
+using MII   = std::map<int, int>;
+using UMII  = std::unordered_map<int, int>;
 using MISG  = std::map<int, std::string, std::greater<int>>;
 
 using MIIG  = std::map<int, int, std::greater<int>>;

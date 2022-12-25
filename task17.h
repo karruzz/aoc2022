@@ -170,6 +170,7 @@ private:
 				return i;
 
 		assert(false);
+		return 0;
 	}
 
 

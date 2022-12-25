@@ -75,7 +75,7 @@ private:
 		return released;
 	}
 
-	MIIG findOptimalPath(const Valves& valves, const VVI& distances, VI startNodes, int leftMinutes, bool showLog = false)
+	MIIG findOptimalPath(const Valves& valves, const VVI& distances, VI startValves, int leftMinutes, bool showLog = false)
 	{
 		std::set<int> toVisit;
 		for (const auto& valve : valves)
@@ -86,7 +86,7 @@ private:
 
 		struct Step
 		{
-			VI m_index;
+			VI m_valve;
 			std::set<int> m_toVisit;
 			MIIG m_visited;
 			int m_released;
@@ -97,40 +97,39 @@ private:
 
 		Step startStep =
 		{
-			.m_index = startNodes,
+			.m_valve = startValves,
 			.m_toVisit = toVisit,
 			.m_released = 0,
-			.m_minute = VI(startNodes.size(), leftMinutes)
+			.m_minute = VI(startValves.size(), leftMinutes)
 		};
 
 		int maxReleased = 0;
 
-		std::list<Step> bfs;
-		bfs.push_back(startStep);
-
 		int leftValves = toVisit.size() + 1;
 		auto startTime = std::chrono::steady_clock::now();
-		int negatives = 0;
+
+		std::list<Step> bfs;
+		bfs.push_back(startStep);
 		while (!bfs.empty())
 		{
 			Step current = bfs.front();
 			bfs.pop_front();
 
-			for (int i = 0; i < current.m_index.size(); ++i)
+			for (int i = 0; i < current.m_valve.size(); ++i)
 			{
-				if (current.m_toVisit.find(current.m_index[i]) != current.m_toVisit.end())
+				if (current.m_toVisit.find(current.m_valve[i]) != current.m_toVisit.end())
 				{
-					current.m_released += valves.at(current.m_index[i]).m_rate * current.m_minute[i];
-					current.m_toVisit.erase(current.m_index[i]);
-					current.m_visited.insert({current.m_index[i], current.m_minute[i]});
+					current.m_released += valves.at(current.m_valve[i]).m_rate * current.m_minute[i];
+					current.m_toVisit.erase(current.m_valve[i]);
+					current.m_visited.insert({current.m_valve[i], current.m_minute[i]});
 				}
 			}
 
-			if (current.m_toVisit.size() < leftValves)
+			if (showLog)
 			{
-				leftValves = current.m_toVisit.size();
-				if (showLog)
+				if (current.m_toVisit.size() < leftValves)
 				{
+					leftValves = current.m_toVisit.size();
 					auto elapsed = std::chrono::steady_clock::now();
 					std::cout << "Left " << leftValves << ", elapsed " << std::chrono::duration_cast<std::chrono::seconds>(elapsed - startTime).count() << std::endl;
 				}
@@ -146,14 +145,14 @@ private:
 			if (current.m_released * 1.3 < maxReleased)
 				continue;
 
-			for (int i = 0; i < current.m_index.size(); ++i)
+			for (int i = 0; i < current.m_valve.size(); ++i)
 			{
-				int index = current.m_index[i];
+				int currentValve = current.m_valve[i];
 
 				MIIG prioritized;
 				for (int nextValve : current.m_toVisit)
 				{
-					int distance = distances[index][nextValve];
+					int distance = distances[currentValve][nextValve];
 
 					// multiplied on 10000 to keep it int, so can be used as a key in a map
 					int hashCriteria = 10000 * valves.at(nextValve).m_rate / (distance * distance);
@@ -167,8 +166,10 @@ private:
 				for (const auto& next : prioritized)
 				{
 					Step nextStep = current;
-					nextStep.m_index[i] = next.second;
-					nextStep.m_minute[i] = current.m_minute[i] - distances[index][next.second] - 1;
+					int nextValve = next.second;
+
+					nextStep.m_valve[i] = nextValve;
+					nextStep.m_minute[i] = current.m_minute[i] - distances[currentValve][nextValve] - 1;
 
 					if (nextStep.m_minute[i] < 0)
 						continue;
@@ -176,7 +177,7 @@ private:
 					bfs.push_back(nextStep);
 
 					++j;
-					const int TakeOnlyFirstN = 3;
+					const int TakeOnlyFirstN = 2;
 					if (j >= TakeOnlyFirstN)
 						break;
 				}
